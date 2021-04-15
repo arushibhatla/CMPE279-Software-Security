@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
     }
 
     // The privilege seperation part starts here
-    char *unprivileged_user = "nobody";
+
     //data structure containing user account information
     struct passwd *pw;
     if( (pw = getpwnam("nobody")) == NULL)
@@ -67,8 +67,7 @@ int main(int argc, char const *argv[])
         perror("unable to get the user info");
         exit(EXIT_FAILURE);
     }
-    // get the user id
-    pid_t unprivileged_user_id = pw->pw_uid;
+    
     // creating child process
     pid_t child_process = fork();
     if(child_process < 0)
@@ -76,6 +75,8 @@ int main(int argc, char const *argv[])
         perror("Creating child process failed");
         exit(EXIT_FAILURE);        
     }
+    // get the user id
+    pid_t unprivileged_user_id = pw->pw_uid;
     if(child_process == 0) // child created successfully
     {
         // Drop privilege to unprivileged_user "nobody"

@@ -97,6 +97,7 @@ int main(int argc, char const *argv[])
     }
     else // parent waits for the child to exit 
     {
+        printf("Inside parent process, uid : %d",getuid());
         int status = 0;
         while ((wait(&status)) > 0);
     }

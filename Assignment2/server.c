@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 {
     
     //check if this a parent process
-    if(argc == 1)){
+    if(argc == 1){
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
     int opt = 1;
@@ -110,6 +110,7 @@ int main(int argc, char const *argv[])
     else{
         
         // Drop privilege of child process to unprivileged_user "nobody"
+         pid_t unprivileged_user_id = pw->pw_uid;
          if(setuid(unprivileged_user_id) < 0){
             perror("drop privilege failed");
             exit(EXIT_FAILURE);

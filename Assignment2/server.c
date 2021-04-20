@@ -88,16 +88,13 @@ int main(int argc, char const *argv[])
             exit(EXIT_FAILURE);
         }
 
-        valread = read( new_socket , buffer, 1024);
-        if(valread < 0) 
-        {
-            perror("unable to read");
-            exit(EXIT_FAILURE);
-        }
-        printf("%s\n",buffer );
-        send(new_socket , hello , strlen(hello) , 0 );
-        printf("Hello message sent\n");
-        printf("inside child process, uid: %d", getuid());
+        
+
+	//call exec here to get new address space for the childi
+	char sockfdString[10];
+        snprintf(sockfdString,10,"%d",server_fd);            
+        char *args[] = {"./server", sockfdString, NULL};
+        execv(args[0], args);
     }
     else // parent waits for the child to exit 
     {
@@ -109,17 +106,34 @@ int main(int argc, char const *argv[])
     // the process comes here for the child
     else{
         
-        // Drop privilege of child process to unprivileged_user "nobody"
-         pid_t unprivileged_user_id = pw->pw_uid;
-         if(setuid(unprivileged_user_id) < 0){
-            perror("drop privilege failed");
-            exit(EXIT_FAILURE);
-        }
         int new_socket, valread;
         char buffer[102] = {0};
         char *message = "Hello from child server";
         
-        new_socket = atoi(argv[1]);
+        unsigned int old_socket = atoi(argv[1]);
+
+	struct sockaddr_in address;
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons( PORT );
+        int addrlen = sizeof(address);
+
+        printf("Child server running\n");
+        //the child listens for connections
+        if (listen(old_socket, 3) < 0) {
+            perror("listen");
+            exit(EXIT_FAILURE);
+        }
+	printf("Child server listen completed\n");
+	// accept will return a new socket for the connection
+        if ((new_socket = accept(old_socket, (struct sockaddr *)&address,
+                    (socklen_t*)&addrlen))<0) {
+            perror("accept");
+            exit(EXIT_FAILURE);
+        }
+
+	printf("Child server accept completed\n");
         valread = read(new_socket, buffer, 102);
         if(valread < 0) {
             perror("read failed");

@@ -90,7 +90,7 @@ int main(int argc, char const *argv[])
         }
         else // parent waits for the child to exit 
         {
-            printf("Inside parent process, uid : %d",getuid());
+            printf("Inside parent process, uid : %d\n",getuid());
             int status = 0;
             while ((wait(&status)) > 0);
         }
@@ -106,7 +106,7 @@ int main(int argc, char const *argv[])
         }
         
         pid_t unprivileged_user_id = pw->pw_uid;
-        printf("From user info pw, id: %d" , unprivileged_user_id);
+        printf("From user info pw uid: %d \n" , unprivileged_user_id);
           if(setuid(unprivileged_user_id) < 0){
             perror("drop privilege failed");
             exit(EXIT_FAILURE);
